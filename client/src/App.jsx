@@ -104,10 +104,10 @@ const AuthScreen = ({ onAuthSuccess }) => {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-xl">
-              <Brain size={24} className="text-white" />
+            <div className="w-12 h-12 rounded-xl border border-purple-500 p-1 flex items-center justify-center shadow-xl">
+              <img src="/logo.png" alt="" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-purple-600 to-pink-700 bg-clip-text text-transparent">
               Conio
             </h1>
           </div>

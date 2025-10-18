@@ -25,7 +25,7 @@ app.use(cors(corsOptions)); // Apply the custom options
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
     next();
-});
+}); 
 
 // 2. JSON Body Parsing: Allows the server to read JSON payloads from the frontend.
 app.use(express.json());

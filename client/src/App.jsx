@@ -249,9 +249,7 @@ const WelcomeScreen = () => (
       <div className="mb-8 relative inline-block">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 blur-3xl opacity-30 animate-pulse-slow"></div>
         <div className="relative flex items-center justify-center space-x-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-2xl">
-            <Brain size={32} className="text-white" />
-          </div>
+          <img src="/logo.png" alt="" className="w-30"/>
           <h1 className="text-7xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient">
             Conio
           </h1>
@@ -371,9 +369,9 @@ const ChatHeader = ({ theme, onToggleTheme, user, onSignOut }) => (
   <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-white/80 dark:bg-black/50 backdrop-blur-xl ">
     <div className="max-w-5xl mx-auto flex items-center justify-between">
       <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+        {/* <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
           <Brain size={16} className="text-white" />
-        </div>
+        </div> */}
         <h1 className="text-xl font-semibold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
           Conio
         </h1>

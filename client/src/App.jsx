@@ -272,7 +272,6 @@ const WelcomeScreen = () => (
 const ChatMessage = ({ message, user }) => {
   const isUser = message.role === "user";
   const photo = user.photoURL;
-  console.log(user);
   return (
     <div
       className={`flex ${
@@ -458,7 +457,7 @@ const ChatInput = ({
           onClick={onNewChat} // 💡 Use the new handler
           disabled={isThinking}
           title="Start a New Chat"
-          className="flex-shrink-0 p-4 rounded-2xl bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-red-100 dark:hover:bg-red-100"
+          className="flex-shrink-0 p-4 rounded-2xl bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 "
         >
           <RotateCcw size={20} />
         </button>
@@ -653,7 +652,7 @@ const App = () => {
   };
   const handleNewChat = async () => {
     if (isThinking) return;
-
+    if(messages == "") return;
     // 1. Client-side state reset
     setMessages([]);
     setInput("");
@@ -690,12 +689,12 @@ const App = () => {
       const data = await response.json();
       console.log("Backend context successfully reset:", data.message);
 
-      alert(data.message || "New chat started! Context cleared.");
+      
     } catch (error) {
       console.error("Failed to reset chat context:", error.message);
       // Revert the local message array if the server failed,
       // though in a simple chat app, we often keep the local messages cleared.
-      alert(`Error resetting chat context: ${error.message}`);
+      
     } finally {
       setIsThinking(false);
     }

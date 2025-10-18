@@ -13,15 +13,41 @@ if (!apiKey) {
 }
 
 const ai = new GoogleGenAI({ apiKey });
-
+const SESSION_INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; 
+// Check for expired sessions every 1 minute
+const CLEANUP_INTERVAL_MS = 60 * 1000;
 // 💡 PRODUCTION STATE MANAGEMENT: Map to store chat sessions, keyed by Firebase User ID (uid)
 const userChatSessions = new Map();
 
 // Configuration for the model's persona
-const systemInstruction = "You are a friendly, helpful, and concise chat assistant. Keep your answers brief. Your name is conio. You can help with small questions related to technology or anything other than politics and government. do not answer political and social scenario questions";
+const systemInstruction = "You are a friendly, helpful, and concise chat assistant. Keep your answers brief. Your name is conio by JeremiaXavier Corporation. You can help with small questions related to technology or anything other than politics and government. Do not answer about illegal questions such as pornography,sex,hacking or criminal contexts";
 
 // --- Session Management Utilities ---
+function runSessionCleanup() {
+    const now = Date.now();
+    let cleanedCount = 0;
+    
+    // Iterate over all keys (user IDs) in the Map
+    for (const [userId, sessionWrapper] of userChatSessions.entries()) {
+        const timeElapsed = now - sessionWrapper.lastAccess;
 
+        if (timeElapsed > SESSION_INACTIVITY_TIMEOUT_MS) {
+            // Session has expired due to inactivity
+            userChatSessions.delete(userId);
+            cleanedCount++;
+            console.log(`[Chat Cleanup] Session expired for ${userId} after ${Math.round(timeElapsed / 60000)} minutes.`);
+        }
+    }
+
+    if (cleanedCount > 0) {
+        console.log(`[ Chat Cleanup] Total ${cleanedCount} expired sessions removed.`);
+    }
+}
+
+
+// 🚀 Start the cleanup timer when the server module loads
+console.log(`[Chat Cleanup] Starting cleanup job. Checking for expired sessions every ${CLEANUP_INTERVAL_MS / 1000} seconds.`);
+setInterval(runSessionCleanup, CLEANUP_INTERVAL_MS).unref(); // unref allows Node.js to exit gracefully
 /**
  * Gets or creates a chat session for a specific user ID.
  * Uses the systemInstruction once during creation to set the persona.

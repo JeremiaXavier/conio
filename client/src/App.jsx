@@ -10,6 +10,7 @@ import {
   LogOut,
   Mail,
   Lock,
+  RotateCcw,
 } from "lucide-react";
 import { auth } from "./firebase.js";
 import {
@@ -271,7 +272,7 @@ const WelcomeScreen = () => (
 const ChatMessage = ({ message, user }) => {
   const isUser = message.role === "user";
   const photo = user.photoURL;
-console.log(user)
+  console.log(user);
   return (
     <div
       className={`flex ${
@@ -318,7 +319,7 @@ console.log(user)
                 <img
                   src={photo}
                   alt="User Profile"
-                 referrerPolicy="no-referrer"
+                  referrerPolicy="no-referrer"
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
@@ -424,7 +425,10 @@ const ChatMessages = ({
   chatWindowRef,
   user = { user },
 }) => (
-  <main ref={chatWindowRef} className="flex-1 overflow-y-auto md:mb-28 px-6 pt-24 pb-6">
+  <main
+    ref={chatWindowRef}
+    className="flex-1 overflow-y-auto md:mb-28 px-6 pt-24 pb-6"
+  >
     <div className="max-w-3xl mx-auto ">
       {messages.map((msg) => (
         <ChatMessage key={msg.id} message={msg} user={user} />
@@ -442,27 +446,42 @@ const ChatInput = ({
   onInputChange,
   onSendMessage,
   onKeyPress,
+  onNewChat, // 💡 NEW PROP: Handler for the New Chat button
 }) => (
   <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-white via-white/95 dark:from-black dark:via-black/95 to-transparent">
     <div className="max-w-3xl mx-auto px-6 py-6">
-      <div className="relative">
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={onInputChange}
-          onKeyPress={onKeyPress}
-          placeholder="Ask me anything..."
-          disabled={isThinking}
-          className="w-full px-6 py-4 pr-14 rounded-2xl bg-gray-100 dark:bg-gray-800/50 backdrop-blur-xl border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 outline-none focus:border-purple-400 dark:focus:border-purple-500/50 transition-all duration-300 disabled:opacity-50"
-        />
+      <div className="flex items-center space-x-2">
+        {" "}
+        {/* 💡 Use flex container for button and input */}
+        {/* New Chat Button */}
         <button
-          onClick={onSendMessage}
-          disabled={isThinking || input.trim() === ""}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95"
+          onClick={onNewChat} // 💡 Use the new handler
+          disabled={isThinking}
+          title="Start a New Chat"
+          className="flex-shrink-0 p-4 rounded-2xl bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-red-100 dark:hover:bg-red-100"
         >
-          <Send size={18} />
+          <RotateCcw size={20} />
         </button>
+        {/* Chat Input Field and Send Button */}
+        <div className="relative flex-grow">
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={onInputChange}
+            onKeyPress={onKeyPress}
+            placeholder="Ask me anything..."
+            disabled={isThinking}
+            className="w-full px-6 py-4 pr-14 rounded-2xl bg-gray-100 dark:bg-gray-800/50 backdrop-blur-xl border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 outline-none focus:border-purple-400 dark:focus:border-purple-500/50 transition-all duration-300 disabled:opacity-50"
+          />
+          <button
+            onClick={onSendMessage}
+            disabled={isThinking || input.trim() === ""}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95"
+          >
+            <Send size={18} />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -506,6 +525,7 @@ const GlobalStyles = () => (
 
 // Main App Component
 const App = () => {
+  const CHAT_RESET_ENDPOINT = "/api/chat-reset";
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -570,7 +590,7 @@ const App = () => {
       // Get the ID token from the current user
       const idToken = await user.getIdToken();
 
-      const apiUrl = "http://localhost:5000/api/chat-server";
+      const apiUrl = "https://conio.onrender.com/api/chat-server";
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -611,7 +631,7 @@ const App = () => {
         id: Date.now() + 1,
         role: "ai",
         content:
-          "Failed to connect to the server. Please check the backend console.",
+          "Failed to connect to the server.",
         error: error.message,
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -631,7 +651,55 @@ const App = () => {
   const handleInputChange = (e) => {
     setInput(e.target.value);
   };
+  const handleNewChat = async () => {
+    if (isThinking) return;
 
+    // 1. Client-side state reset
+    setMessages([]);
+    setInput("");
+    if (inputRef.current) inputRef.current.focus();
+
+    setIsThinking(true);
+
+    try {
+      console.log("Requesting server context reset using Fetch...");
+      const idToken = await user.getIdToken();
+      const response = await fetch(
+        `https://conio.onrender.com/api/chat-reset`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // 🔑 CRITICAL: Include the Firebase ID Token in the Authorization header
+            Authorization: `Bearer ${idToken}`,
+          },
+          // Body is often optional for a reset POST, but good practice to include if needed
+          body: JSON.stringify({}),
+        }
+      );
+
+      if (!response.ok) {
+        // If the server returns a 4xx or 5xx status
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `HTTP error! Status: ${response.status}`
+        );
+      }
+
+      // Successfully reset on the server
+      const data = await response.json();
+      console.log("Backend context successfully reset:", data.message);
+
+      alert(data.message || "New chat started! Context cleared.");
+    } catch (error) {
+      console.error("Failed to reset chat context:", error.message);
+      // Revert the local message array if the server failed,
+      // though in a simple chat app, we often keep the local messages cleared.
+      alert(`Error resetting chat context: ${error.message}`);
+    } finally {
+      setIsThinking(false);
+    }
+  };
   // Show loading while checking auth
   if (authChecking) {
     return (
@@ -684,6 +752,7 @@ const App = () => {
           onInputChange={handleInputChange}
           onSendMessage={handleSendMessage}
           onKeyPress={handleKeyPress}
+          onNewChat={handleNewChat}
         />
       </div>
     </div>

@@ -12,7 +12,7 @@ const port = 5000; // Using port 5000 as per your execution environment
 const corsOptions = {
     // 💡 Rewritten to include multiple origins as an array
     origin: [
-        'http://localhost:5173', // Your React development environment
+        'http://localhost:5173',
         'https://jeremiaxavier.github.io', // Example: Your staging environment
         'https://conioai.web.app' // Example: Your production environment
     ], 

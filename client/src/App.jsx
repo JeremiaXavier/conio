@@ -485,7 +485,7 @@ const ChatInput = ({
     {/* Footer */}
     <div className=" py-4">
       <p className="text-center text-xs text-gray-500 dark:text-gray-500">
-        © {new Date().getFullYear()} JeremiaXavier Corporation. All rights
+        © {new Date().getFullYear()} JeremiaXavier AI. All rights
         reserved.
       </p>
     </div>
